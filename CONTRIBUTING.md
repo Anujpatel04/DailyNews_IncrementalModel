@@ -2,41 +2,41 @@
 
 ## Development Setup
 
-1. Clone the repository
-2. Create a virtual environment:
-   ```bash
-   python3 -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-3. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-4. Copy `.env.example` to `.env` and add your API keys
-5. Run tests (if available)
+```bash
+git clone <repository-url>
+cd Incremental_MODEL
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env
+```
 
-## Code Style
+## Code Standards
 
-- Follow PEP 8
-- Use type hints
-- Add docstrings to all functions and classes
-- Keep functions focused and small
-- Write clear, descriptive variable names
+- **Type hints**: Required for all function parameters and return types
+- **Docstrings**: Required for all public functions and classes
+- **Style**: Follow PEP 8
+- **Imports**: Use absolute imports, group by standard library → third-party → local
+- **Error handling**: Explicit exception handling, no silent failures
 
 ## Architecture Principles
 
-- **Layer Separation**: Each layer has a single responsibility
-- **Incremental**: All updates must be additive, no retraining from scratch
-- **State-based**: All state must persist to disk
-- **Deterministic**: Same input produces same output
-- **Config-driven**: No magic numbers, all thresholds configurable
+1. **Layer separation**: Each module has a single responsibility
+2. **Incremental updates**: All changes must be additive, no retraining from scratch
+3. **State persistence**: All state must be explicitly saved to disk
+4. **Deterministic**: Same input must produce same output
+5. **Config-driven**: No magic numbers, all thresholds in configuration
 
 ## Pull Request Process
 
-1. Create a feature branch
-2. Make your changes
-3. Ensure all tests pass
+1. Create a feature branch from `main`
+2. Make changes following code standards
+3. Ensure all functionality works incrementally
 4. Update documentation if needed
-5. Submit a pull request with a clear description
+5. Submit PR with clear description of changes
 
+## Testing
 
+- Verify incremental behavior: new data doesn't require full retraining
+- Test state persistence: system survives restarts
+- Validate deterministic output: same input produces same results
