@@ -45,36 +45,11 @@ STORAGE_BASE_PATH=./data  # Optional, defaults to ./data
 LOG_LEVEL=INFO  # Optional
 ```
 
-### Option 2: Environment Variables
-
-Alternatively, set environment variables directly:
-
-```bash
-export SEARCHAPI_KEY="your-searchapi-key"
-export OPENAI_API_KEY="your-openai-api-key"  # Optional
-export STORAGE_BASE_PATH="./data"  # Optional, defaults to ./data
-export LOG_LEVEL="INFO"  # Optional
-```
-
-The system automatically loads variables from `.env` if `python-dotenv` is installed.
-
-## Usage
-
-### Ingest Articles
-
-```bash
-python -m incremental_news_intelligence.main ingest \
-    --query "technology news" \
-    --max-articles 50 \
-    --freshness day
-```
-
 ### Run Dashboard (Web Interface)
 
 ```bash
 python -m incremental_news_intelligence.main dashboard --port 5000
 ```
-
 Then open your browser to `http://localhost:5000` to access the professional web dashboard.
 
 Features:
@@ -83,29 +58,13 @@ Features:
 - **Articles View**: Browse articles with cluster filtering
 - **Search**: Full-text search across all articles
 
-### Run API Server (REST API)
-
-```bash
-python -m incremental_news_intelligence.main api --port 5000
-```
-
-API endpoints:
-- `GET /clusters` - List all clusters
-- `GET /clusters/<cluster_id>` - Get cluster details
-- `GET /trends?limit=10` - Get latest trend metrics
-- `GET /articles?cluster_id=<id>&limit=50` - Get articles for cluster
-- `GET /daily-summary?date=YYYY-MM-DD` - Get daily summary
-- `GET /health` - Health check
-
-## System Behavior
-
 ### Incremental Learning
 
 - New articles are ingested and processed without retraining existing models
 - Embeddings are generated only for new articles
-- Clusters are updated incrementally by assigning new articles to nearest existing cluster or creating new clusters
+- Clusters are updated incrementally by assigning new articles to the nearest existing cluster or creating new clusters
 - Topic statistics are maintained with time decay
-- Trend detection compares current state to previous state
+- Trend detection compares the current state to the previous state
 
 ### State Persistence
 
@@ -133,8 +92,6 @@ All state is persisted to disk:
 4. **Config-driven**: All thresholds and limits are configurable
 5. **Layer separation**: Each layer has single responsibility
 6. **No business logic in API**: API handlers only read and format data
-
-## Notes
 
 - The system can run daily as a scheduled job
 - Architecture supports cloud deployment without refactoring
