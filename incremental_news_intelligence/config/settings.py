@@ -10,7 +10,6 @@ try:
 except ImportError:
     pass
 
-
 @dataclass
 class BingNewsConfig:
     """SearchAPI Bing News configuration."""
@@ -21,14 +20,12 @@ class BingNewsConfig:
     max_retries: int = 3
     retry_backoff_base: float = 2.0
 
-
 @dataclass
 class EmbeddingConfig:
     """Embedding generation configuration."""
     model_name: str = "sentence-transformers/all-MiniLM-L6-v2"
     batch_size: int = 32
     device: str = "cpu"
-
 
 @dataclass
 class ClusteringConfig:
@@ -37,7 +34,6 @@ class ClusteringConfig:
     min_cluster_size: int = 2
     similarity_metric: str = "cosine"
 
-
 @dataclass
 class TopicModelingConfig:
     """Topic modeling configuration."""
@@ -45,14 +41,12 @@ class TopicModelingConfig:
     min_keyword_frequency: int = 2
     top_keywords_per_cluster: int = 10
 
-
 @dataclass
 class TrendDetectionConfig:
     """Trend detection configuration."""
     growth_threshold: float = 1.5
     new_cluster_window_hours: int = 24
     decline_threshold: float = 0.5
-
 
 @dataclass
 class StorageConfig:
@@ -79,7 +73,6 @@ class StorageConfig:
             trends_dir=base / "trends",
         )
 
-
 @dataclass
 class LLMConfig:
     """LLM configuration for reasoning layer."""
@@ -88,7 +81,6 @@ class LLMConfig:
     api_key: Optional[str] = None
     temperature: float = 0.3
     max_tokens: int = 1000
-
 
 @dataclass
 class SystemConfig:
@@ -124,4 +116,3 @@ class SystemConfig:
             llm=LLMConfig(api_key=llm_api_key),
             log_level=os.getenv("LOG_LEVEL", "INFO"),
         )
-

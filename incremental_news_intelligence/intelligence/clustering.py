@@ -15,7 +15,6 @@ from incremental_news_intelligence.storage.managers import (
 
 logger = logging.getLogger(__name__)
 
-
 class IncrementalClusterer:
     """Incremental clustering that assigns articles to existing clusters or creates new ones."""
 
@@ -193,4 +192,3 @@ class IncrementalClusterer:
 
         logger.info(f"Assigned {len(assignments)} articles to clusters")
         return assignments
-

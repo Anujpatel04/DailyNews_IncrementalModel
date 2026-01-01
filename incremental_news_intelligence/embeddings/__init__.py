@@ -1,3 +1,1 @@
 """Embedding generation layer."""
-
-

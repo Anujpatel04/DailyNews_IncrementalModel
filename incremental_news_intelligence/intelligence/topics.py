@@ -13,7 +13,6 @@ from incremental_news_intelligence.storage.managers import (
 
 logger = logging.getLogger(__name__)
 
-
 class IncrementalTopicModeler:
     """Maintains rolling keyword statistics per cluster with time decay."""
 
@@ -113,5 +112,3 @@ class IncrementalTopicModeler:
             self.update_topics_for_cluster(cluster_id)
 
         logger.info(f"Updated topics for {len(cluster_ids)} clusters")
-
-

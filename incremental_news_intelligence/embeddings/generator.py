@@ -13,7 +13,6 @@ from incremental_news_intelligence.storage.managers import (
 
 logger = logging.getLogger(__name__)
 
-
 class EmbeddingGenerator:
     """Generates embeddings for articles incrementally."""
 
@@ -137,5 +136,3 @@ class EmbeddingGenerator:
             return []
 
         return self.generate_embeddings_batch(new_ids)
-
-

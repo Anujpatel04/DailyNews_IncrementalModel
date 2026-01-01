@@ -30,7 +30,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-
 def setup_storage(config: SystemConfig) -> tuple:
     """Initialize all storage managers."""
     config.storage.base_path.mkdir(parents=True, exist_ok=True)
@@ -50,7 +49,6 @@ def setup_storage(config: SystemConfig) -> tuple:
         topic_storage,
         trend_storage,
     )
-
 
 def run_ingestion_pipeline(
     config: SystemConfig,
@@ -119,7 +117,6 @@ def run_ingestion_pipeline(
     else:
         logger.warning("LLM API key not set, skipping summarization")
 
-
 def run_api_server(config: SystemConfig, port: int = 5000) -> None:
     """Run API server."""
     from incremental_news_intelligence.api.server import create_app
@@ -137,7 +134,6 @@ def run_api_server(config: SystemConfig, port: int = 5000) -> None:
     logger.info(f"Starting API server on port {port}")
     app.run(host="0.0.0.0", port=port, debug=False)
 
-
 def run_dashboard(config: SystemConfig, port: int = 5000) -> None:
     """Run dashboard web interface."""
     from incremental_news_intelligence.dashboard.app import create_dashboard_app
@@ -145,7 +141,6 @@ def run_dashboard(config: SystemConfig, port: int = 5000) -> None:
     app = create_dashboard_app(config)
     logger.info(f"Starting dashboard on http://localhost:{port}")
     app.run(host="0.0.0.0", port=port, debug=True)
-
 
 def main() -> None:
     """Main entry point."""
@@ -203,7 +198,5 @@ def main() -> None:
     elif args.command == "dashboard":
         run_dashboard(config, port=args.port)
 
-
 if __name__ == "__main__":
     main()
-

@@ -13,7 +13,6 @@ from incremental_news_intelligence.storage.managers import (
 
 logger = logging.getLogger(__name__)
 
-
 def create_app(
     cluster_storage: ClusterStorage,
     processed_storage: ProcessedArticleStorage,
@@ -68,5 +67,3 @@ def create_app(
         return jsonify({"status": "healthy"})
 
     return app
-
-

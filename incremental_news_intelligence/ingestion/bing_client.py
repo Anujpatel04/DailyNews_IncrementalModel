@@ -12,7 +12,6 @@ from incremental_news_intelligence.config.settings import BingNewsConfig
 
 logger = logging.getLogger(__name__)
 
-
 class RateLimiter:
     """Simple rate limiter for API calls."""
 
@@ -35,7 +34,6 @@ class RateLimiter:
             time.sleep(sleep_time)
 
         self.last_call_time = time.time()
-
 
 class BingNewsClient:
     """Client for SearchAPI Bing News Search."""
@@ -105,7 +103,7 @@ class BingNewsClient:
             List of article dictionaries with generated IDs
         """
         num_results = count or min(self.config.max_results_per_query, 50)
-        
+
         params = {
             "engine": "bing_news",
             "q": query,
@@ -129,11 +127,11 @@ class BingNewsClient:
                 articles = response_data.get("value", [])
             if not articles:
                 articles = response_data.get("news", [])
-            
+
             if not articles:
                 logger.warning(f"No articles found in response. Response keys: {list(response_data.keys())}")
                 return []
-            
+
             logger.info(f"Retrieved {len(articles)} articles")
 
             enriched_articles = []
@@ -184,4 +182,3 @@ class BingNewsClient:
 
         logger.info(f"Total articles retrieved: {len(articles)}")
         return articles
-

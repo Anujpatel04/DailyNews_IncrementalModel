@@ -18,7 +18,6 @@ from incremental_news_intelligence.storage.managers import (
 
 logger = logging.getLogger(__name__)
 
-
 def create_dashboard_app(config: SystemConfig) -> Flask:
     """Create Flask dashboard application."""
     import os
@@ -36,8 +35,7 @@ def create_dashboard_app(config: SystemConfig) -> Flask:
     embedding_storage = EmbeddingStorage(storage_config)
     topic_storage = TopicStorage(storage_config)
     trend_storage = TrendStorage(storage_config)
-    
-    # Initialize LLM client for chatbot
+
     llm_client = None
     if config.llm.api_key:
         llm_client = OpenAIClient(config.llm)
@@ -171,7 +169,7 @@ def create_dashboard_app(config: SystemConfig) -> Flask:
             return jsonify({"error": "Question is required"}), 400
 
         try:
-            # Get recent articles and trends for context
+
             recent_articles = []
             article_ids = processed_storage.list_article_ids()[:20]
             for article_id in article_ids:
@@ -184,7 +182,6 @@ def create_dashboard_app(config: SystemConfig) -> Flask:
                         "date": article.get("published_date", "")
                     })
 
-            # Get latest trends
             timestamps = trend_storage.list_trend_timestamps()
             trends_info = ""
             if timestamps:
@@ -199,7 +196,6 @@ Current Trends:
 - Declining clusters: {len(trends.get('declining_clusters', []))}
 """
 
-            # Get top clusters with summaries
             cluster_summaries = []
             cluster_ids = cluster_storage.list_cluster_ids()[:10]
             for cluster_id in cluster_ids:
@@ -209,7 +205,6 @@ Current Trends:
                     if summary:
                         cluster_summaries.append(f"- {cluster_id}: {summary}")
 
-            # Build context for LLM
             articles_context = "\n".join([
                 f"Title: {a['title']}\nSnippet: {a['snippet']}\nSource: {a['source']}\n"
                 for a in recent_articles[:10]
@@ -232,7 +227,7 @@ User Question: {question}
 Provide a helpful, accurate answer based on the information above. If the question cannot be answered from the provided context, say so. Keep your answer concise but informative (2-4 sentences)."""
 
             answer = llm_client.generate(prompt, max_tokens=500)
-            
+
             if not answer:
                 return jsonify({"error": "Failed to generate response"}), 500
 
@@ -246,4 +241,3 @@ Provide a helpful, accurate answer based on the information above. If the questi
             return jsonify({"error": str(e)}), 500
 
     return app
-

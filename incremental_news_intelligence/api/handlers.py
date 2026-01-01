@@ -10,7 +10,6 @@ from incremental_news_intelligence.storage.managers import (
 
 logger = logging.getLogger(__name__)
 
-
 class APIHandlers:
     """Read-only API handlers."""
 
@@ -89,5 +88,3 @@ class APIHandlers:
             "summary": "Use reasoning layer to generate summary",
             "trends": trends,
         }
-
-

@@ -6,7 +6,6 @@ from typing import Any, Dict, Optional
 
 logger = logging.getLogger(__name__)
 
-
 class TextNormalizer:
     """Deterministic text normalization."""
 
@@ -77,7 +76,6 @@ class TextNormalizer:
         ascii_ratio = sum(1 for c in text if ord(c) < 128) / len(text)
         return ascii_ratio > 0.85
 
-
 class DuplicateDetector:
     """Detect duplicate articles using content hashing."""
 
@@ -117,7 +115,6 @@ class DuplicateDetector:
         union = words1 | words2
 
         return len(intersection) / len(union) if union else 0.0
-
 
 class ArticleProcessor:
     """Process raw articles into normalized format."""
@@ -183,4 +180,3 @@ class ArticleProcessor:
         }
 
         return processed
-

@@ -11,7 +11,6 @@ from incremental_news_intelligence.storage.base import FileStorageBackend, Vecto
 
 logger = logging.getLogger(__name__)
 
-
 class RawArticleStorage:
     """Storage manager for raw articles from Bing News API."""
 
@@ -35,7 +34,6 @@ class RawArticleStorage:
     def list_article_ids(self) -> List[str]:
         """List all article IDs."""
         return self.backend.list_keys()
-
 
 class ProcessedArticleStorage:
     """Storage manager for processed articles."""
@@ -62,7 +60,6 @@ class ProcessedArticleStorage:
     def list_article_ids(self) -> List[str]:
         """List all processed article IDs."""
         return self.backend.list_keys()
-
 
 class EmbeddingStorage:
     """Storage manager for embeddings."""
@@ -100,7 +97,6 @@ class EmbeddingStorage:
         """List all article IDs with embeddings."""
         return self.backend.list_article_ids()
 
-
 class ClusterStorage:
     """Storage manager for cluster state."""
 
@@ -134,7 +130,6 @@ class ClusterStorage:
                 clusters[cluster_id] = cluster
         return clusters
 
-
 class TopicStorage:
     """Storage manager for topic statistics."""
 
@@ -157,7 +152,6 @@ class TopicStorage:
         """Check if topic stats exist."""
         return self.backend.exists(cluster_id)
 
-
 class TrendStorage:
     """Storage manager for trend metrics."""
 
@@ -178,5 +172,3 @@ class TrendStorage:
     def list_trend_timestamps(self) -> List[str]:
         """List all trend timestamps."""
         return self.backend.list_keys()
-
-

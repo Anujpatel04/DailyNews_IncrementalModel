@@ -7,7 +7,6 @@ from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
-
 class StorageBackend(ABC):
     """Abstract base class for storage backends."""
 
@@ -30,7 +29,6 @@ class StorageBackend(ABC):
     def list_keys(self, prefix: Optional[str] = None) -> List[str]:
         """List all keys, optionally filtered by prefix."""
         pass
-
 
 class FileStorageBackend(StorageBackend):
     """File-based storage backend."""
@@ -74,7 +72,6 @@ class FileStorageBackend(StorageBackend):
         pattern = f"{prefix}*.json" if prefix else "*.json"
         files = list(self.base_path.glob(pattern))
         return [f.stem for f in files]
-
 
 class VectorStorageBackend:
     """Simple in-memory vector storage with file persistence."""
@@ -156,5 +153,3 @@ class VectorStorageBackend:
     def get_all_metadata(self) -> Dict[str, Dict[str, Any]]:
         """Get all metadata."""
         return self._metadata.copy()
-
-

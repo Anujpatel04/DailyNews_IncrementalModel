@@ -8,7 +8,6 @@ from incremental_news_intelligence.storage.managers import ClusterStorage, Trend
 
 logger = logging.getLogger(__name__)
 
-
 class TrendDetector:
     """Detects trends: growing clusters, new clusters, declining clusters."""
 
@@ -140,4 +139,3 @@ class TrendDetector:
                 }
 
         return cluster_data
-

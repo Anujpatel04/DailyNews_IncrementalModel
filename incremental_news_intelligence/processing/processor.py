@@ -10,7 +10,6 @@ from incremental_news_intelligence.storage.managers import (
 
 logger = logging.getLogger(__name__)
 
-
 class ProcessingOrchestrator:
     """Orchestrates article processing pipeline."""
 
@@ -70,5 +69,3 @@ class ProcessingOrchestrator:
 
         logger.info(f"Processed {len(processed_ids)} articles")
         return processed_ids
-
-

@@ -8,7 +8,6 @@ from incremental_news_intelligence.storage.managers import RawArticleStorage
 
 logger = logging.getLogger(__name__)
 
-
 class ArticleIngester:
     """Orchestrates article ingestion from Bing News API."""
 
@@ -62,5 +61,3 @@ class ArticleIngester:
 
         logger.info(f"Ingested {len(ingested_ids)} new articles")
         return ingested_ids
-
-

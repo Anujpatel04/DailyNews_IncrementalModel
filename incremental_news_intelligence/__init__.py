@@ -1,3 +1,1 @@
 """Incremental News Intelligence System."""
-
-

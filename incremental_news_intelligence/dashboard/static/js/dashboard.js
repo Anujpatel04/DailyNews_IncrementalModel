@@ -1,15 +1,15 @@
-// Dashboard JavaScript
+
 
 let currentView = 'trends';
 
-// Initialize dashboard
+
 document.addEventListener('DOMContentLoaded', function() {
     setupNavigation();
     loadStats();
     loadTrends();
 });
 
-// Navigation setup
+
 function setupNavigation() {
     document.querySelectorAll('[data-view]').forEach(item => {
         item.addEventListener('click', function(e) {
@@ -21,22 +21,22 @@ function setupNavigation() {
 }
 
 function switchView(view) {
-    // Update active nav item
+    
     document.querySelectorAll('[data-view]').forEach(item => {
         item.classList.remove('active');
     });
     document.querySelector(`[data-view="${view}"]`).classList.add('active');
 
-    // Hide all views
+    
     document.querySelectorAll('.view-panel').forEach(panel => {
         panel.style.display = 'none';
     });
 
-    // Show selected view
+    
     document.getElementById(`${view}-view`).style.display = 'block';
     currentView = view;
 
-    // Load data for view
+    
     switch(view) {
         case 'trends':
             loadTrends();
@@ -48,12 +48,12 @@ function switchView(view) {
             loadArticles();
             break;
         case 'search':
-            // Search view is ready
+            
             break;
     }
 }
 
-// Load system statistics
+
 async function loadStats() {
     try {
         const response = await fetch('/api/stats');
@@ -72,7 +72,7 @@ async function loadStats() {
     }
 }
 
-// Load trends
+
 async function loadTrends() {
     const loadingEl = document.getElementById('trends-loading');
     const contentEl = document.getElementById('trends-content');
@@ -90,13 +90,13 @@ async function loadTrends() {
                 <p>${data.error}</p>
             </div>`;
         } else {
-            // Update stats
+            
             document.getElementById('total-clusters').textContent = data.total_clusters || 0;
             document.getElementById('growing-clusters').textContent = data.growing_clusters?.length || 0;
             document.getElementById('new-clusters').textContent = data.new_clusters?.length || 0;
             document.getElementById('declining-clusters').textContent = data.declining_clusters?.length || 0;
 
-            // Render lists
+            
             document.getElementById('growing-list').innerHTML = 
                 renderTrendList(data.growing_clusters || [], 'growing');
             document.getElementById('new-list').innerHTML = 
@@ -142,7 +142,7 @@ function renderTrendList(items, type) {
     `).join('');
 }
 
-// Load clusters
+
 async function loadClusters() {
     const loadingEl = document.getElementById('clusters-loading');
     const contentEl = document.getElementById('clusters-content');
@@ -196,7 +196,7 @@ async function loadClusters() {
     }
 }
 
-// Load articles
+
 async function loadArticles() {
     const loadingEl = document.getElementById('articles-loading');
     const contentEl = document.getElementById('articles-content');
@@ -241,7 +241,7 @@ async function loadArticles() {
     }
 }
 
-// View cluster details
+
 async function viewCluster(clusterId) {
     const modal = new bootstrap.Modal(document.getElementById('clusterModal'));
     const modalBody = document.getElementById('cluster-modal-body');
@@ -295,7 +295,7 @@ async function viewCluster(clusterId) {
     }
 }
 
-// Search articles
+
 async function performSearch() {
     const query = document.getElementById('search-query').value.trim();
     const resultsEl = document.getElementById('search-results');
@@ -337,7 +337,7 @@ async function performSearch() {
     }
 }
 
-// Allow Enter key to trigger search
+
 document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('search-query');
     if (searchInput) {
@@ -349,7 +349,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Chatbot functionality
+
 function handleChatKeyPress(event) {
     if (event.key === 'Enter' && !event.shiftKey) {
         event.preventDefault();
@@ -367,17 +367,17 @@ async function sendChatMessage() {
         return;
     }
 
-    // Disable input and button
+    
     input.disabled = true;
     sendBtn.disabled = true;
 
-    // Add user message
+    
     addChatMessage(question, 'user');
 
-    // Clear input
+    
     input.value = '';
 
-    // Add loading indicator
+    
     const loadingId = addLoadingMessage();
 
     try {
@@ -391,7 +391,7 @@ async function sendChatMessage() {
 
         const data = await response.json();
 
-        // Remove loading indicator
+        
         removeLoadingMessage(loadingId);
 
         if (data.error) {
@@ -407,7 +407,7 @@ async function sendChatMessage() {
         addChatMessage(`Sorry, I couldn't process your question. Please try again.`, 'bot');
         console.error('Chat error:', error);
     } finally {
-        // Re-enable input and button
+        
         input.disabled = false;
         sendBtn.disabled = false;
         input.focus();
@@ -436,7 +436,7 @@ function addChatMessage(text, type, isSmall = false) {
     messageDiv.appendChild(contentDiv);
     messagesContainer.appendChild(messageDiv);
     
-    // Scroll to bottom
+    
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
     
     return messageDiv;

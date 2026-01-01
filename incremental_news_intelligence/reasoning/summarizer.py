@@ -12,14 +12,12 @@ from incremental_news_intelligence.storage.managers import (
 
 logger = logging.getLogger(__name__)
 
-
 class LLMClient:
     """Abstract LLM client interface."""
 
     def generate(self, prompt: str, max_tokens: int = 1000) -> Optional[str]:
         """Generate text from prompt."""
         raise NotImplementedError
-
 
 class OpenAIClient(LLMClient):
     """OpenAI API client."""
@@ -51,7 +49,6 @@ class OpenAIClient(LLMClient):
         except Exception as e:
             logger.error(f"Error generating text: {e}")
             return None
-
 
 class ClusterSummarizer:
     """Generate summaries for clusters using LLMs."""
@@ -161,7 +158,6 @@ Provide a concise summary of what this cluster is about:"""
         logger.info(f"Generated {len(summaries)} cluster summaries")
         return summaries
 
-
 class DailyReportGenerator:
     """Generate daily "what changed" reports."""
 
@@ -233,4 +229,3 @@ Provide a 3-4 sentence summary of the day's key developments:"""
 
         summary = self.llm_client.generate(prompt, max_tokens=300)
         return summary
-
