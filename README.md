@@ -124,20 +124,6 @@ All state is persisted to disk:
 - Duplicate detection uses content hashing
 - All operations are idempotent
 
-## Project Structure
-
-```
-incremental_news_intelligence/
-├── ingestion/          # Bing News API client
-├── processing/        # Text normalization and filtering
-├── embeddings/        # Embedding generation
-├── intelligence/      # Clustering, topics, trends
-├── reasoning/         # LLM-based summaries
-├── api/               # REST API endpoints
-├── storage/           # State persistence
-├── config/            # Configuration management
-└── main.py            # System orchestrator
-```
 
 ## Design Principles
 
