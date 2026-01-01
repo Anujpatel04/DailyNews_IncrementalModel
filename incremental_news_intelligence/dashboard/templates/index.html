@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News Intelligence Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/dashboard.css') }}" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-dark bg-dark">
+        <div class="container-fluid">
+            <span class="navbar-brand mb-0 h1">
+                <i class="fas fa-newspaper"></i> News Intelligence Dashboard
+            </span>
+            <div class="d-flex">
+                <span class="badge bg-primary me-2" id="stats-badge">Loading...</span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5><i class="fas fa-filter"></i> Navigation</h5>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        <a href="#" class="list-group-item list-group-item-action active" data-view="trends">
+                            <i class="fas fa-chart-line"></i> Trends
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action" data-view="clusters">
+                            <i class="fas fa-layer-group"></i> Clusters
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action" data-view="articles">
+                            <i class="fas fa-newspaper"></i> Articles
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action" data-view="search">
+                            <i class="fas fa-search"></i> Search
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-info-circle"></i> System Stats</h5>
+                    </div>
+                    <div class="card-body" id="stats-panel">
+                        <p class="text-muted">Loading...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-6">
+                <!-- Trends View -->
+                <div id="trends-view" class="view-panel">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5><i class="fas fa-chart-line"></i> Trend Analysis</h5>
+                            <button class="btn btn-sm btn-primary" onclick="loadTrends()">
+                                <i class="fas fa-sync"></i> Refresh
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div id="trends-loading" class="text-center py-5">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                            <div id="trends-content" style="display: none;">
+                                <div class="row mb-4">
+                                    <div class="col-md-3">
+                                        <div class="stat-card bg-primary">
+                                            <div class="stat-value" id="total-clusters">0</div>
+                                            <div class="stat-label">Total Clusters</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="stat-card bg-success">
+                                            <div class="stat-value" id="growing-clusters">0</div>
+                                            <div class="stat-label">Growing</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="stat-card bg-info">
+                                            <div class="stat-value" id="new-clusters">0</div>
+                                            <div class="stat-label">New</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="stat-card bg-warning">
+                                            <div class="stat-value" id="declining-clusters">0</div>
+                                            <div class="stat-label">Declining</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <h6>Growing Clusters</h6>
+                                <div id="growing-list" class="mb-4"></div>
+
+                                <h6>New Clusters</h6>
+                                <div id="new-list" class="mb-4"></div>
+
+                                <h6>Declining Clusters</h6>
+                                <div id="declining-list"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Clusters View -->
+                <div id="clusters-view" class="view-panel" style="display: none;">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5><i class="fas fa-layer-group"></i> Topic Clusters</h5>
+                            <button class="btn btn-sm btn-primary" onclick="loadClusters()">
+                                <i class="fas fa-sync"></i> Refresh
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div id="clusters-loading" class="text-center py-5">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                            <div id="clusters-content" style="display: none;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Articles View -->
+                <div id="articles-view" class="view-panel" style="display: none;">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5><i class="fas fa-newspaper"></i> Articles</h5>
+                            <div>
+                                <select class="form-select form-select-sm d-inline-block" style="width: auto;" id="cluster-filter">
+                                    <option value="">All Clusters</option>
+                                </select>
+                                <button class="btn btn-sm btn-primary ms-2" onclick="loadArticles()">
+                                    <i class="fas fa-sync"></i> Refresh
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div id="articles-loading" class="text-center py-5">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                            <div id="articles-content" style="display: none;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search View -->
+                <div id="search-view" class="view-panel" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-search"></i> Search Articles</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" id="search-query" placeholder="Search articles...">
+                                <button class="btn btn-primary" onclick="performSearch()">
+                                    <i class="fas fa-search"></i> Search
+                                </button>
+                            </div>
+                            <div id="search-results"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chatbot Column -->
+            <div class="col-md-3">
+                <div class="card sticky-top" style="top: 20px;">
+                    <div class="card-header">
+                        <h5><i class="fas fa-robot"></i> News Assistant</h5>
+                    </div>
+                    <div class="card-body p-0" style="height: calc(100vh - 200px); display: flex; flex-direction: column;">
+                        <div id="chat-messages" style="flex: 1; overflow-y: auto; padding: 1rem; background-color: #f8f9fa;">
+                            <div class="chat-message bot-message">
+                                <div class="message-content">
+                                    <i class="fas fa-robot text-primary"></i>
+                                    <p>Hello! I'm your news intelligence assistant. Ask me about today's latest news, trends, or any questions about the articles we've analyzed.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chat-input-container p-3 border-top">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="chat-input" placeholder="Ask about today's news..." onkeypress="handleChatKeyPress(event)">
+                                <button class="btn btn-primary" onclick="sendChatMessage()" id="chat-send-btn">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                            <small class="text-muted d-block mt-2">
+                                <i class="fas fa-info-circle"></i> Powered by AI
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cluster Detail Modal -->
+    <div class="modal fade" id="clusterModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Cluster Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="cluster-modal-body">
+                    Loading...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+</html>
+
