@@ -28,47 +28,6 @@ The system is organized into strict layers with single responsibilities:
 pip install -r requirements.txt
 ```
 
-## Configuration
-
-### Option 1: Using .env file (Recommended)
-
-Copy the example file and add your API keys:
-
-```bash
-cp .env.example .env
-```
-
-Then edit `.env` and add your API keys:
-
-```bash
-SEARCHAPI_KEY=your-searchapi-key
-SEARCHAPI_ENGINES=bing_news,google_news,google_patents  # Optional, defaults to all three
-NEWSAPI_AI_KEY=your-newsapi-ai-key  # Optional, for additional news sources
-NEWSAPI_AI_ENABLED=true  # Optional, set to false to disable NewsAPI.ai
-HACKERNEWS_ENABLED=true  # Optional, set to false to disable Hacker News (default: true)
-HACKERNEWS_MAX_STORIES=30  # Optional, max stories per list type (default: 30)
-HACKERNEWS_TYPES=topstories,newstories,beststories  # Optional, which lists to fetch
-
-# LLM Configuration (choose one):
-# Option 1: OpenAI
-OPENAI_API_KEY=your-openai-api-key  # Optional
-# Option 2: Azure OpenAI
-AZURE_OPENAI_API_KEY=your-azure-openai-api-key  # Optional
-AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com/openai/deployments/your-deployment/chat/completions?api-version=2025-01-01-preview
-AZURE_OPENAI_API_VERSION=2025-01-01-preview  # Optional, auto-detected from endpoint if not set
-AZURE_OPENAI_MODEL=gpt-4o  # Optional, auto-detected from endpoint if not set
-
-STORAGE_BASE_PATH=./data  # Optional, defaults to ./data
-LOG_LEVEL=INFO  # Optional
-```
-
-### Run Dashboard (Web Interface)
-
-```bash
-python -m incremental_news_intelligence.main dashboard --port 5000
-```
-Then open your browser to `http://localhost:5000` to access the professional web dashboard.
-
 Features:
 - **Trends View**: Visualize growing, new, and declining clusters
 - **Clusters View**: Browse all topic clusters with summaries and keywords
