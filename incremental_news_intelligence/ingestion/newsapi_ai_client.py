@@ -161,3 +161,4 @@ class NewsAPIAIClient:
         logger.info(f"Total articles retrieved from NewsAPI.ai {engine}: {len(articles)}")
         return articles
 
+

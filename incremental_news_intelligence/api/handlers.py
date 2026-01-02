@@ -89,3 +89,4 @@ class APIHandlers:
             "trends": trends,
         }
 
+

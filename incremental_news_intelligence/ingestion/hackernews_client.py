@@ -221,3 +221,4 @@ class HackerNewsClient:
         logger.info(f"Total fetched {len(all_articles)} stories from all HN lists")
         return all_articles
 
+

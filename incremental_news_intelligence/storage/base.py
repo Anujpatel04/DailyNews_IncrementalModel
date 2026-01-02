@@ -154,3 +154,4 @@ class VectorStorageBackend:
         """Get all metadata."""
         return self._metadata.copy()
 
+

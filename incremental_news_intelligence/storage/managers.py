@@ -173,3 +173,4 @@ class TrendStorage:
         """List all trend timestamps."""
         return self.backend.list_keys()
 
+
