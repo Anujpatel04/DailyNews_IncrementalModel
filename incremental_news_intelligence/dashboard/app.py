@@ -257,13 +257,6 @@ def create_dashboard_app(config: SystemConfig) -> Flask:
         try:
             relevant_articles, relevant_clusters, has_relevant_data = find_relevant_data(question)
             
-            if not has_relevant_data:
-                return jsonify({
-                    "answer": "I don't have information about this topic in my clusters. Please try asking about topics related to the news articles I have ingested.",
-                    "sources_count": 0,
-                    "info_found": False
-                })
-
             articles_context_parts = []
             for idx, article in enumerate(relevant_articles[:10], 1):
                 article_url = article.get("url", "")
@@ -274,7 +267,7 @@ def create_dashboard_app(config: SystemConfig) -> Flask:
                     f"Date: {article['date']}\n"
                     f"URL: {article_url}\n"
                 )
-            articles_context = "\n".join(articles_context_parts)
+            articles_context = "\n".join(articles_context_parts) if articles_context_parts else "No relevant articles found."
 
             clusters_context_parts = []
             for cluster in relevant_clusters[:5]:
@@ -305,7 +298,8 @@ Current Trends:
 - Declining clusters: {len(trends.get('declining_clusters', []))}
 """
 
-            prompt = f"""You are a professional news intelligence analyst. Provide a comprehensive, well-structured answer based ONLY on the information provided below from the ingested news articles and clusters.
+            if has_relevant_data:
+                prompt = f"""You are a helpful and professional news intelligence assistant. Answer the user's question based on the information provided below from ingested news articles and clusters.
 
 {trends_info}
 
@@ -317,42 +311,39 @@ Relevant Topic Clusters:
 
 User Question: {question}
 
-FORMATTING INSTRUCTIONS:
-1. Use professional markdown formatting:
-   - Use **bold** for key terms, company names, product names, and important concepts
-   - Use bullet points (-) for main points
-   - Use sub-bullets or numbered lists when appropriate
-   - Use clear section headers if the answer is long
+IMPORTANT INSTRUCTIONS:
+1. Format your answer as bullet points using "-" or "•" for each point
+2. For each fact or piece of information, cite the source using [Source X] where X is the source number from the articles above
+3. Answer ONLY based on the information provided above
+4. If the provided information doesn't contain enough details to answer the question, say "I don't have enough information in my clusters to fully answer this question"
+5. Keep your answer concise but informative
+6. Only use facts from the articles and clusters provided above
+7. Structure your response clearly with bullet points and source citations
+8. Use professional language, bold key terms, company names, and important concepts. Use headers for sections.
 
-2. Structure your response professionally:
-   - Start with a brief summary or overview if the question is complex
-   - Organize information logically by topic or theme
-   - Use clear, concise language
-   - Provide context and explanations, not just facts
+Example format:
+**Overview:** Brief professional summary
 
-3. Source citations:
-   - Cite sources inline using [Source X] format after each fact or claim
-   - Multiple sources should be cited as [Source X, Source Y]
-   - Always cite sources for specific facts, statistics, or claims
+**Key Developments:**
+- **Starlink** plans to reconfigure satellites [Source 1]
+  - Lower orbit for safety [Source 8]
+- **NVIDIA** expected at CES 2026 [Source 4]
+  - Focus on AI hardware leadership
 
-4. Content guidelines:
-   - Answer ONLY based on the information provided above
-   - If information is insufficient, clearly state what you can and cannot answer
-   - Provide detailed explanations and context, not just bullet points
-   - Use professional business/technical language appropriate for news analysis
-   - Connect related information to provide comprehensive insights
+**Analysis:** Professional insights connecting the points"""
+            else:
+                prompt = f"""You are a friendly and helpful news intelligence chatbot. The user has asked a question, but you don't have relevant information about this topic in your ingested news articles.
 
-5. Response structure example:
-   **Overview:** Brief summary of the topic
+User Question: {question}
 
-   **Key Points:**
-   - **Main Point 1:** Detailed explanation with context [Source 1]
-     - Supporting detail or sub-point [Source 2]
-   - **Main Point 2:** Detailed explanation with context [Source 3, Source 4]
+Please respond in a natural, conversational, and friendly way. You should:
+1. Politely acknowledge that you don't have information about this specific topic
+2. Explain that you specialize in answering questions about the news articles you have ingested
+3. Suggest that they try asking about topics related to technology, business, science, or current events that might be in your news database
+4. Be warm, helpful, and conversational - like a friendly assistant, not a technical system
+5. Keep it brief and natural (2-3 sentences)
 
-   **Analysis:** Additional insights or connections between points
-
-Remember: Be thorough, professional, and provide value through clear explanations and context."""
+Do NOT say things like "I don't have information about this topic in my clusters" or use technical jargon. Instead, respond naturally like a helpful chatbot would."""
 
             answer = llm_client.generate(prompt, max_tokens=1500)
 
@@ -374,7 +365,7 @@ Remember: Be thorough, professional, and provide value through clear explanation
                 "sources": sources_list,
                 "sources_count": len(relevant_articles),
                 "clusters_count": len(relevant_clusters),
-                "info_found": True
+                "info_found": has_relevant_data
             })
 
         except Exception as e:

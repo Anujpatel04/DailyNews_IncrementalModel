@@ -28,7 +28,49 @@ The system is organized into strict layers with single responsibilities:
 pip install -r requirements.txt
 ```
 
-Features:
+## Usage
+
+**Important**: Always run commands from the project root directory (`/Users/anuj/Desktop/Incremental_MODEL`), not from inside the package directory.
+
+### Option 1: Using Python module (Recommended)
+
+From the project root:
+
+```bash
+# Run ingestion pipeline
+python -m incremental_news_intelligence.main ingest --query "technology news" --max-articles 50
+
+# Run API server
+python -m incremental_news_intelligence.main api --port 5000
+
+# Run dashboard
+python -m incremental_news_intelligence.main dashboard --port 5000
+```
+
+### Option 2: Install as package
+
+```bash
+# Install in development mode
+pip install -e .
+
+# Then use the console script
+news-intelligence ingest --query "technology news"
+news-intelligence api --port 5000
+news-intelligence dashboard --port 5000
+```
+
+### Environment Setup
+
+Create a `.env` file in the project root with your API keys:
+
+```env
+SEARCHAPI_KEY=your_searchapi_key
+NEWSAPI_AI_KEY=your_newsapi_ai_key
+OPENAI_API_KEY=your_openai_key
+AZURE_OPENAI_ENDPOINT=your_azure_endpoint
+```
+
+## Features
 - **Trends View**: Visualize growing, new, and declining clusters
 - **Clusters View**: Browse all topic clusters with summaries and keywords
 - **Articles View**: Browse articles with cluster filtering
@@ -73,4 +115,22 @@ All state is persisted to disk:
 - Architecture supports cloud deployment without refactoring
 - All embeddings are stored locally (no external vector database required)
 - LLM calls are optional and only used for summarization
+
+## Deployment
+
+### Railway Deployment
+
+This application is ready for deployment on Railway. See [RAILWAY_DEPLOYMENT.md](RAILWAY_DEPLOYMENT.md) for detailed deployment instructions.
+
+**Quick Deploy:**
+1. Connect your GitHub repository to Railway
+2. Set environment variables in Railway dashboard
+3. Deploy automatically
+
+**Required Files:**
+- `Procfile` - Defines the web process
+- `railway.json` - Railway configuration
+- `wsgi.py` - WSGI entry point for production
+- `requirements.txt` - Python dependencies
+- `runtime.txt` - Python version specification
 

@@ -141,11 +141,19 @@ def run_api_server(config: SystemConfig, port: int = 5000) -> None:
 
 def run_dashboard(config: SystemConfig, port: int = 5000) -> None:
     """Run dashboard web interface."""
+    import os
     from incremental_news_intelligence.dashboard.app import create_dashboard_app
 
     app = create_dashboard_app(config)
-    logger.info(f"Starting dashboard on http://localhost:{port}")
-    app.run(host="0.0.0.0", port=port, debug=True)
+    
+    # Use PORT environment variable if available (Railway, Heroku, etc.)
+    port = int(os.environ.get("PORT", port))
+    
+    # Disable debug mode in production
+    debug_mode = os.environ.get("FLASK_DEBUG", "False").lower() == "true"
+    
+    logger.info(f"Starting dashboard on port {port} (debug={debug_mode})")
+    app.run(host="0.0.0.0", port=port, debug=debug_mode)
 
 def main() -> None:
     """Main entry point."""

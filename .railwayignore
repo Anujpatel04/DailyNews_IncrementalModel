@@ -1,0 +1,32 @@
+# Railway ignore file (similar to .gitignore but for Railway builds)
+# Files that should not be included in Railway builds
+
+# Data storage
+data/
+
+# Virtual environments
+myenv/
+venv/
+env/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+logs/
+
+# Environment files
+.env.local
+.env.*.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
