@@ -86,9 +86,11 @@ class StorageConfig:
     clusters_dir: Path
     topics_dir: Path
     trends_dir: Path
+    mongodb_uri: Optional[str] = None
+    mongodb_database: str = "news_intelligence"
 
     @classmethod
-    def from_base_path(cls, base_path: str) -> "StorageConfig":
+    def from_base_path(cls, base_path: str, mongodb_uri: Optional[str] = None, mongodb_database: str = "news_intelligence") -> "StorageConfig":
         """Create storage config from base path."""
         base = Path(base_path)
         return cls(
@@ -99,6 +101,8 @@ class StorageConfig:
             clusters_dir=base / "clusters",
             topics_dir=base / "topics",
             trends_dir=base / "trends",
+            mongodb_uri=mongodb_uri,
+            mongodb_database=mongodb_database,
         )
 
 @dataclass
@@ -134,7 +138,13 @@ class SystemConfig:
             raise ValueError("SEARCHAPI_KEY environment variable must be set")
 
         storage_base = os.getenv("STORAGE_BASE_PATH", "./data")
-        storage_config = StorageConfig.from_base_path(storage_base)
+        mongodb_uri = os.getenv("MONGODB_URI", "")
+        mongodb_database = os.getenv("MONGODB_DATABASE", "news_intelligence")
+        storage_config = StorageConfig.from_base_path(
+            storage_base,
+            mongodb_uri=mongodb_uri if mongodb_uri else None,
+            mongodb_database=mongodb_database
+        )
 
         llm_api_key = os.getenv("OPENAI_API_KEY") or os.getenv("AZURE_OPENAI_API_KEY")
         azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT", "")

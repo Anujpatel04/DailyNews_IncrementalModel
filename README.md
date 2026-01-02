@@ -21,6 +21,7 @@ The system is organized into strict layers with single responsibilities:
 - NewsAPI.ai key (optional, for additional news sources)
 - Hacker News API (free, no API key required)
 - OpenAI API key (optional, for summarization)
+- MongoDB Atlas (optional, for persistent cloud storage) or file storage (default)
 
 ## Installation
 
@@ -116,6 +117,22 @@ All state is persisted to disk:
 - All embeddings are stored locally (no external vector database required)
 - LLM calls are optional and only used for summarization
 
+## Storage Options
+
+### File Storage (Default)
+By default, data is stored in the `./data` directory. This works for local development but data is lost on Railway restarts.
+
+### MongoDB Atlas (Recommended for Production)
+For persistent cloud storage, use MongoDB Atlas:
+
+1. Create a MongoDB Atlas cluster (free tier available)
+2. Get your connection string
+3. Set environment variables:
+   - `MONGODB_URI` - Your MongoDB Atlas connection string
+   - `MONGODB_DATABASE` - Database name (default: `news_intelligence`)
+
+See [MONGODB_SETUP.md](MONGODB_SETUP.md) for complete setup instructions.
+
 ## Deployment
 
 ### Railway Deployment
@@ -124,7 +141,7 @@ This application is ready for deployment on Railway. See [RAILWAY_DEPLOYMENT.md]
 
 **Quick Deploy:**
 1. Connect your GitHub repository to Railway
-2. Set environment variables in Railway dashboard
+2. Set environment variables in Railway dashboard (including `MONGODB_URI` for persistent storage)
 3. Deploy automatically
 
 **Required Files:**

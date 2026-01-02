@@ -16,7 +16,15 @@ class RawArticleStorage:
 
     def __init__(self, storage_config: StorageConfig):
         """Initialize raw article storage."""
-        self.backend = FileStorageBackend(storage_config.raw_articles_dir)
+        if storage_config.mongodb_uri:
+            from incremental_news_intelligence.storage.mongodb_backend import MongoDBStorageBackend
+            self.backend = MongoDBStorageBackend(
+                storage_config.mongodb_uri,
+                storage_config.mongodb_database,
+                "raw_articles"
+            )
+        else:
+            self.backend = FileStorageBackend(storage_config.raw_articles_dir)
 
     def save_article(self, article_id: str, article_data: Dict[str, Any]) -> None:
         """Save raw article with ingestion timestamp."""
@@ -40,7 +48,15 @@ class ProcessedArticleStorage:
 
     def __init__(self, storage_config: StorageConfig):
         """Initialize processed article storage."""
-        self.backend = FileStorageBackend(storage_config.processed_articles_dir)
+        if storage_config.mongodb_uri:
+            from incremental_news_intelligence.storage.mongodb_backend import MongoDBStorageBackend
+            self.backend = MongoDBStorageBackend(
+                storage_config.mongodb_uri,
+                storage_config.mongodb_database,
+                "processed_articles"
+            )
+        else:
+            self.backend = FileStorageBackend(storage_config.processed_articles_dir)
 
     def save_processed_article(
         self, article_id: str, processed_data: Dict[str, Any]
@@ -66,7 +82,15 @@ class EmbeddingStorage:
 
     def __init__(self, storage_config: StorageConfig):
         """Initialize embedding storage."""
-        self.backend = VectorStorageBackend(storage_config.embeddings_dir)
+        if storage_config.mongodb_uri:
+            from incremental_news_intelligence.storage.mongodb_backend import MongoDBVectorStorageBackend
+            self.backend = MongoDBVectorStorageBackend(
+                storage_config.mongodb_uri,
+                storage_config.mongodb_database,
+                "embeddings"
+            )
+        else:
+            self.backend = VectorStorageBackend(storage_config.embeddings_dir)
 
     def save_embedding(
         self,
@@ -102,7 +126,15 @@ class ClusterStorage:
 
     def __init__(self, storage_config: StorageConfig):
         """Initialize cluster storage."""
-        self.backend = FileStorageBackend(storage_config.clusters_dir)
+        if storage_config.mongodb_uri:
+            from incremental_news_intelligence.storage.mongodb_backend import MongoDBStorageBackend
+            self.backend = MongoDBStorageBackend(
+                storage_config.mongodb_uri,
+                storage_config.mongodb_database,
+                "clusters"
+            )
+        else:
+            self.backend = FileStorageBackend(storage_config.clusters_dir)
 
     def save_cluster(self, cluster_id: str, cluster_data: Dict[str, Any]) -> None:
         """Save cluster state."""
@@ -135,7 +167,15 @@ class TopicStorage:
 
     def __init__(self, storage_config: StorageConfig):
         """Initialize topic storage."""
-        self.backend = FileStorageBackend(storage_config.topics_dir)
+        if storage_config.mongodb_uri:
+            from incremental_news_intelligence.storage.mongodb_backend import MongoDBStorageBackend
+            self.backend = MongoDBStorageBackend(
+                storage_config.mongodb_uri,
+                storage_config.mongodb_database,
+                "topics"
+            )
+        else:
+            self.backend = FileStorageBackend(storage_config.topics_dir)
 
     def save_topic_stats(
         self, cluster_id: str, topic_stats: Dict[str, Any]
@@ -157,7 +197,15 @@ class TrendStorage:
 
     def __init__(self, storage_config: StorageConfig):
         """Initialize trend storage."""
-        self.backend = FileStorageBackend(storage_config.trends_dir)
+        if storage_config.mongodb_uri:
+            from incremental_news_intelligence.storage.mongodb_backend import MongoDBStorageBackend
+            self.backend = MongoDBStorageBackend(
+                storage_config.mongodb_uri,
+                storage_config.mongodb_database,
+                "trends"
+            )
+        else:
+            self.backend = FileStorageBackend(storage_config.trends_dir)
 
     def save_trend_metrics(
         self, timestamp: str, trend_data: Dict[str, Any]
