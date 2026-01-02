@@ -29,7 +29,10 @@
                         <h5><i class="fas fa-filter"></i> Navigation</h5>
                     </div>
                     <div class="list-group list-group-flush">
-                        <a href="#" class="list-group-item list-group-item-action active" data-view="trends">
+                        <a href="#" class="list-group-item list-group-item-action active" data-view="chatbot">
+                            <i class="fas fa-robot"></i> Chatbot
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action" data-view="trends">
                             <i class="fas fa-chart-line"></i> Trends
                         </a>
                         <a href="#" class="list-group-item list-group-item-action" data-view="clusters">
@@ -55,9 +58,41 @@
             </div>
 
             
-            <div class="col-md-6">
+            <div class="col-md-9">
                 
-                <div id="trends-view" class="view-panel">
+                <div id="chatbot-view" class="view-panel">
+                    <div class="card" style="height: calc(100vh - 150px); display: flex; flex-direction: column;">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5><i class="fas fa-robot"></i> News Intelligence Assistant</h5>
+                            <button class="btn btn-sm btn-primary" onclick="clearChatHistory()">
+                                <i class="fas fa-trash"></i> Clear Chat
+                            </button>
+                        </div>
+                        <div class="card-body p-0" style="flex: 1; display: flex; flex-direction: column; overflow: hidden;">
+                            <div id="chat-messages" style="flex: 1; overflow-y: auto; padding: 1.5rem; background-color: #f8f9fa;">
+                                <div class="chat-message bot-message">
+                                    <div class="message-content">
+                                        <i class="fas fa-robot text-primary"></i>
+                                        <p>Hello! I'm your news intelligence assistant. Ask me about today's latest news, trends, or any questions about the articles we've analyzed. I'll provide answers with bullet points and source citations.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="chat-input-container p-3 border-top bg-white">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="chat-input" placeholder="Ask about today's news..." onkeypress="handleChatKeyPress(event)">
+                                    <button class="btn btn-primary" onclick="sendChatMessage()" id="chat-send-btn">
+                                        <i class="fas fa-paper-plane"></i> Send
+                                    </button>
+                                </div>
+                                <small class="text-muted d-block mt-2">
+                                    <i class="fas fa-info-circle"></i> Powered by Azure OpenAI • Answers include source citations
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="trends-view" class="view-panel" style="display: none;">
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <h5><i class="fas fa-chart-line"></i> Trend Analysis</h5>
@@ -171,36 +206,6 @@
                                 </button>
                             </div>
                             <div id="search-results"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            
-            <div class="col-md-3">
-                <div class="card sticky-top" style="top: 20px;">
-                    <div class="card-header">
-                        <h5><i class="fas fa-robot"></i> News Assistant</h5>
-                    </div>
-                    <div class="card-body p-0" style="height: calc(100vh - 200px); display: flex; flex-direction: column;">
-                        <div id="chat-messages" style="flex: 1; overflow-y: auto; padding: 1rem; background-color: #f8f9fa;">
-                            <div class="chat-message bot-message">
-                                <div class="message-content">
-                                    <i class="fas fa-robot text-primary"></i>
-                                    <p>Hello! I'm your news intelligence assistant. Ask me about today's latest news, trends, or any questions about the articles we've analyzed.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="chat-input-container p-3 border-top">
-                            <div class="input-group">
-                                <input type="text" class="form-control" id="chat-input" placeholder="Ask about today's news..." onkeypress="handleChatKeyPress(event)">
-                                <button class="btn btn-primary" onclick="sendChatMessage()" id="chat-send-btn">
-                                    <i class="fas fa-paper-plane"></i>
-                                </button>
-                            </div>
-                            <small class="text-muted d-block mt-2">
-                                <i class="fas fa-info-circle"></i> Powered by AI
-                            </small>
                         </div>
                     </div>
                 </div>

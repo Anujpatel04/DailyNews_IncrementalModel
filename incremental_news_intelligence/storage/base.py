@@ -153,3 +153,4 @@ class VectorStorageBackend:
     def get_all_metadata(self) -> Dict[str, Dict[str, Any]]:
         """Get all metadata."""
         return self._metadata.copy()
+

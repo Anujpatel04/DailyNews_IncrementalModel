@@ -88,3 +88,4 @@ class APIHandlers:
             "summary": "Use reasoning layer to generate summary",
             "trends": trends,
         }
+

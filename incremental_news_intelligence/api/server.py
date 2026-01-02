@@ -67,3 +67,4 @@ def create_app(
         return jsonify({"status": "healthy"})
 
     return app
+

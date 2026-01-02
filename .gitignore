@@ -44,6 +44,7 @@ myenv/
 .env
 .env.local
 .env.*.local
+.env.bak
 *.key
 *.pem
 

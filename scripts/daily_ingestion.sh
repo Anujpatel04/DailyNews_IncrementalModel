@@ -25,3 +25,4 @@ python3 -m incremental_news_intelligence.main ingest \
 echo "Daily ingestion completed at $(date)"
 
 
+

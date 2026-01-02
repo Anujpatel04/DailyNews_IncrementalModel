@@ -20,20 +20,54 @@ class LLMClient:
         raise NotImplementedError
 
 class OpenAIClient(LLMClient):
-    """OpenAI API client."""
+    """OpenAI API client (supports both OpenAI and Azure OpenAI)."""
 
     def __init__(self, config: LLMConfig):
         """Initialize OpenAI client."""
         self.config = config
         try:
             import openai
-            self.client = openai.OpenAI(api_key=config.api_key)
+            if config.azure_endpoint:
+                endpoint_url = config.azure_endpoint
+                
+                if "?" in endpoint_url:
+                    query_part = endpoint_url.split("?")[1]
+                    endpoint_url = endpoint_url.split("?")[0]
+                    if "api-version=" in query_part:
+                        api_version = query_part.split("api-version=")[1].split("&")[0]
+                        if not config.api_version:
+                            config.api_version = api_version
+                
+                base_url = endpoint_url
+                if "/chat/completions" in base_url:
+                    base_url = base_url.split("/chat/completions")[0]
+                if "/deployments/" in base_url:
+                    deployment_part = base_url.split("/deployments/")[1]
+                    deployment_name = deployment_part.split("/")[0]
+                    base_url = base_url.split("/deployments/")[0]
+                    if not config.model_name or config.model_name == "gpt-4":
+                        config.model_name = deployment_name
+                if base_url.endswith("/openai"):
+                    base_url = base_url.replace("/openai", "")
+                
+                self.client = openai.AzureOpenAI(
+                    api_key=config.api_key,
+                    azure_endpoint=base_url,
+                    api_version=config.api_version or "2025-01-01-preview",
+                )
+                logger.info(f"Initialized Azure OpenAI client: endpoint={base_url}, model={config.model_name}, api_version={config.api_version}")
+            else:
+                self.client = openai.OpenAI(api_key=config.api_key)
+                logger.info("Initialized OpenAI client")
         except ImportError:
             logger.error("openai package not installed")
             self.client = None
+        except Exception as e:
+            logger.error(f"Error initializing OpenAI client: {e}")
+            self.client = None
 
     def generate(self, prompt: str, max_tokens: int = 1000) -> Optional[str]:
-        """Generate text using OpenAI API."""
+        """Generate text using OpenAI or Azure OpenAI API."""
         if not self.client:
             logger.error("OpenAI client not initialized")
             return None
@@ -65,7 +99,7 @@ class ClusterSummarizer:
         self.processed_storage = processed_storage
         self.topic_storage = topic_storage
 
-        if llm_config.provider == "openai":
+        if llm_config.provider in ["openai", "azure"]:
             self.llm_client = OpenAIClient(llm_config)
         else:
             logger.warning(f"Unknown LLM provider: {llm_config.provider}")
@@ -171,7 +205,7 @@ class DailyReportGenerator:
         self.cluster_storage = cluster_storage
         self.trend_storage = trend_storage
 
-        if llm_config.provider == "openai":
+        if llm_config.provider in ["openai", "azure"]:
             self.llm_client = OpenAIClient(llm_config)
         else:
             logger.warning(f"Unknown LLM provider: {llm_config.provider}")

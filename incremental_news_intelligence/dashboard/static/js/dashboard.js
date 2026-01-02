@@ -1,12 +1,12 @@
 
 
-let currentView = 'trends';
+let currentView = 'chatbot';
 
 
 document.addEventListener('DOMContentLoaded', function() {
     setupNavigation();
     loadStats();
-    loadTrends();
+    initializeChatbot();
 });
 
 
@@ -48,7 +48,9 @@ function switchView(view) {
             loadArticles();
             break;
         case 'search':
-            
+            break;
+        case 'chatbot':
+            initializeChatbot();
             break;
     }
 }
@@ -357,6 +359,27 @@ function handleChatKeyPress(event) {
     }
 }
 
+function initializeChatbot() {
+    const chatInput = document.getElementById('chat-input');
+    if (chatInput) {
+        setTimeout(() => chatInput.focus(), 100);
+    }
+}
+
+function clearChatHistory() {
+    const messagesContainer = document.getElementById('chat-messages');
+    if (messagesContainer) {
+        messagesContainer.innerHTML = `
+            <div class="chat-message bot-message">
+                <div class="message-content">
+                    <i class="fas fa-robot text-primary"></i>
+                    <p>Hello! I'm your news intelligence assistant. Ask me about today's latest news, trends, or any questions about the articles we've analyzed. I'll provide answers with bullet points and source citations.</p>
+                </div>
+            </div>
+        `;
+    }
+}
+
 async function sendChatMessage() {
     const input = document.getElementById('chat-input');
     const question = input.value.trim();
@@ -397,10 +420,7 @@ async function sendChatMessage() {
         if (data.error) {
             addChatMessage(`Sorry, I encountered an error: ${data.error}`, 'bot');
         } else {
-            addChatMessage(data.answer, 'bot');
-            if (data.sources_count) {
-                addChatMessage(`(Based on ${data.sources_count} recent articles)`, 'bot', true);
-            }
+            addChatMessage(data.answer, 'bot', false, true, data.sources || []);
         }
     } catch (error) {
         removeLoadingMessage(loadingId);
@@ -414,7 +434,7 @@ async function sendChatMessage() {
     }
 }
 
-function addChatMessage(text, type, isSmall = false) {
+function addChatMessage(text, type, isSmall = false, formatBullets = false, sources = []) {
     const messagesContainer = document.getElementById('chat-messages');
     const messageDiv = document.createElement('div');
     messageDiv.className = `chat-message ${type}-message`;
@@ -428,7 +448,11 @@ function addChatMessage(text, type, isSmall = false) {
     contentDiv.className = 'message-content';
     
     if (type === 'bot') {
-        contentDiv.innerHTML = `<i class="fas fa-robot text-primary"></i>${escapeHtml(text)}`;
+        let formattedText = escapeHtml(text);
+        if (formatBullets) {
+            formattedText = formatBulletPoints(formattedText, sources);
+        }
+        contentDiv.innerHTML = `<i class="fas fa-robot text-primary"></i>${formattedText}`;
     } else {
         contentDiv.textContent = text;
     }
@@ -440,6 +464,141 @@ function addChatMessage(text, type, isSmall = false) {
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
     
     return messageDiv;
+}
+
+function formatBulletPoints(text, sources = []) {
+    const lines = text.split('\n');
+    let formatted = '';
+    
+    const sourceMap = {};
+    sources.forEach(source => {
+        sourceMap[source.id] = source;
+    });
+    
+    let inList = false;
+    let listDepth = 0;
+    
+    for (let i = 0; i < lines.length; i++) {
+        let line = lines[i].trim();
+        
+        if (!line) {
+            if (inList) {
+                formatted += '</div>';
+                inList = false;
+                listDepth = 0;
+            }
+            formatted += '<br>';
+            continue;
+        }
+        
+        let processedLine = line;
+        
+        processedLine = processedLine.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+        processedLine = processedLine.replace(/\*(.+?)\*/g, '<em>$1</em>');
+        
+        processedLine = escapeHtml(processedLine);
+        processedLine = processedLine.replace(/&lt;strong&gt;(.+?)&lt;\/strong&gt;/g, '<strong>$1</strong>');
+        processedLine = processedLine.replace(/&lt;em&gt;(.+?)&lt;\/em&gt;/g, '<em>$1</em>');
+        
+        if (/^#{1,3}\s/.test(line)) {
+            const level = line.match(/^(#{1,3})/)[1].length;
+            const headerText = line.replace(/^#{1,3}\s+/, '');
+            const headerSize = level === 1 ? '1.5rem' : level === 2 ? '1.3rem' : '1.1rem';
+            const headerWeight = 'bold';
+            const headerMargin = level === 1 ? '1.5rem 0 1rem 0' : level === 2 ? '1.2rem 0 0.8rem 0' : '1rem 0 0.6rem 0';
+            formatted += `<div style="font-size: ${headerSize}; font-weight: ${headerWeight}; margin: ${headerMargin}; color: #212529; border-bottom: ${level === 1 ? '2px' : '1px'} solid #e9ecef; padding-bottom: 0.5rem;">${escapeHtml(headerText)}</div>`;
+            continue;
+        }
+        
+        processedLine = processedLine.replace(/\[Source\s+(\d+(?:\s*,\s*Source\s+\d+)*)\]/g, (match, sourcesText) => {
+            const sourceIds = sourcesText.split(/,?\s*Source\s+/).map(id => parseInt(id.trim())).filter(id => !isNaN(id));
+            const sourceLinks = sourceIds.map(id => {
+                const source = sourceMap[id];
+                if (source) {
+                    const title = source.title || 'Source ' + id;
+                    const url = source.url || '#';
+                    const sourceText = title.length > 40 ? title.substring(0, 40) + '...' : title;
+                    return `<a href="${escapeHtml(url)}" target="_blank" class="source-link" title="${escapeHtml(title)}">[${escapeHtml(sourceText)}]</a>`;
+                }
+                return `[Source ${id}]`;
+            });
+            return sourceLinks.join(' ');
+        });
+        
+        const isBullet = line.startsWith('- ') || line.startsWith('• ') || line.startsWith('* ');
+        const isNumbered = /^\d+\.\s/.test(line);
+        const isSubBullet = /^\s{2,}([-•*]|\d+\.)\s/.test(line);
+        
+        if (isBullet || isNumbered) {
+            if (!inList) {
+                formatted += '<div style="margin-left: 0;">';
+                inList = true;
+            }
+            const indent = isSubBullet ? '40px' : '20px';
+            const marginBottom = i < lines.length - 1 && (lines[i + 1].trim().startsWith('- ') || /^\d+\.\s/.test(lines[i + 1].trim())) ? '6px' : '10px';
+            formatted += `<div style="margin-left: ${indent}; margin-bottom: ${marginBottom}; line-height: 1.7; padding-left: 4px;">${processedLine}</div>`;
+        } else {
+            if (inList) {
+                formatted += '</div>';
+                inList = false;
+            }
+            const isBoldLine = /^\*\*/.test(line) && /\*\*$/.test(line);
+            const style = isBoldLine ? 'font-weight: 600; margin: 0.8rem 0; color: #212529;' : 'margin-bottom: 0.6rem; line-height: 1.7;';
+            formatted += `<div style="${style}">${processedLine}</div>`;
+        }
+    }
+    
+    if (inList) {
+        formatted += '</div>';
+    }
+    
+    return formatted;
+}
+
+function displaySources(sources) {
+    const messagesContainer = document.getElementById('chat-messages');
+    const sourcesDiv = document.createElement('div');
+    sourcesDiv.className = 'chat-message bot-message';
+    sourcesDiv.style.marginTop = '10px';
+    sourcesDiv.style.borderTop = '1px solid #e0e0e0';
+    sourcesDiv.style.paddingTop = '10px';
+    
+    const sourcesHeader = document.createElement('div');
+    sourcesHeader.className = 'message-content';
+    sourcesHeader.style.fontWeight = 'bold';
+    sourcesHeader.style.marginBottom = '8px';
+    sourcesHeader.innerHTML = '<i class="fas fa-book text-info"></i> <strong>Sources:</strong>';
+    sourcesDiv.appendChild(sourcesHeader);
+    
+    const sourcesList = document.createElement('div');
+    sourcesList.style.marginLeft = '25px';
+    sourcesList.style.fontSize = '0.9rem';
+    
+    sources.forEach((source, index) => {
+        const sourceItem = document.createElement('div');
+        sourceItem.style.marginBottom = '6px';
+        sourceItem.style.padding = '4px';
+        sourceItem.style.backgroundColor = '#f8f9fa';
+        sourceItem.style.borderRadius = '4px';
+        
+        let sourceText = `<strong>[Source ${source.id}]</strong> ${escapeHtml(source.title || 'Untitled')}<br>`;
+        sourceText += `<small style="color: #666;">${escapeHtml(source.source || 'Unknown source')}`;
+        if (source.date) {
+            sourceText += ` • ${escapeHtml(source.date)}`;
+        }
+        sourceText += '</small>';
+        
+        if (source.url) {
+            sourceText += ` <a href="${escapeHtml(source.url)}" target="_blank" style="color: #007bff; text-decoration: none; margin-left: 8px;"><i class="fas fa-external-link-alt"></i></a>`;
+        }
+        
+        sourceItem.innerHTML = sourceText;
+        sourcesList.appendChild(sourceItem);
+    });
+    
+    sourcesDiv.appendChild(sourcesList);
+    messagesContainer.appendChild(sourcesDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }
 
 function addLoadingMessage() {

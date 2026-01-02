@@ -1,55 +1,28 @@
-"""Bing News Search API client with rate limiting and retries."""
+"""NewsAPI.ai client with rate limiting and retries."""
 import hashlib
 import logging
 import time
-from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
-from urllib.parse import quote
 
 import requests
 
-from incremental_news_intelligence.config.settings import SearchAPIConfig
+from incremental_news_intelligence.config.settings import NewsAPIAIConfig
+from incremental_news_intelligence.ingestion.bing_client import RateLimiter
 
 logger = logging.getLogger(__name__)
 
-class RateLimiter:
-    """Simple rate limiter for API calls."""
+class NewsAPIAIClient:
+    """Client for NewsAPI.ai."""
 
-    def __init__(self, calls_per_minute: int):
-        """Initialize rate limiter."""
-        self.calls_per_minute = calls_per_minute
-        self.min_interval = 60.0 / calls_per_minute
-        self.last_call_time: Optional[float] = None
-
-    def wait_if_needed(self) -> None:
-        """Wait if necessary to respect rate limit."""
-        if self.last_call_time is None:
-            self.last_call_time = time.time()
-            return
-
-        elapsed = time.time() - self.last_call_time
-        if elapsed < self.min_interval:
-            sleep_time = self.min_interval - elapsed
-            logger.debug(f"Rate limiting: sleeping for {sleep_time:.2f}s")
-            time.sleep(sleep_time)
-
-        self.last_call_time = time.time()
-
-class SearchAPIClient:
-    """Client for SearchAPI multiple engines."""
-
-    def __init__(self, config: SearchAPIConfig):
-        """Initialize SearchAPI client."""
+    def __init__(self, config: NewsAPIAIConfig):
+        """Initialize NewsAPI.ai client."""
         self.config = config
         self.rate_limiter = RateLimiter(config.rate_limit_per_minute)
         self.session = requests.Session()
-        self.session.headers.update({
-            "Authorization": f"Bearer {config.api_key}",
-        })
 
     def _generate_article_id(self, article: Dict[str, Any]) -> str:
         """Generate deterministic article ID from URL or link."""
-        url = article.get("url") or article.get("link", "")
+        url = article.get("url") or article.get("link", "") or article.get("source_url", "")
         if not url:
             logger.warning(f"Article missing URL/link: {article.get('title', 'Unknown')}")
         return hashlib.sha256(url.encode()).hexdigest()[:16]
@@ -84,22 +57,20 @@ class SearchAPIClient:
     def search(
         self,
         query: str,
-        engine: str = "bing_news",
+        engine: str = "google_news",
         count: Optional[int] = None,
         offset: int = 0,
         freshness: Optional[str] = None,
-        sort_by: Optional[str] = None,
     ) -> List[Dict[str, Any]]:
         """
-        Search using SearchAPI with specified engine.
+        Search using NewsAPI.ai.
 
         Args:
             query: Search query string
-            engine: Search engine (bing_news, google_news, google_patents)
+            engine: Search engine (google_news, etc.)
             count: Number of results (max 100)
-            offset: Pagination offset (not directly supported by SearchAPI)
-            freshness: Date filter (e.g., "day", "week", "month") - only for news engines
-            sort_by: Sort order (ignored for SearchAPI)
+            offset: Pagination offset
+            freshness: Date filter (e.g., "day", "week", "month")
 
         Returns:
             List of article dictionaries with generated IDs
@@ -110,12 +81,13 @@ class SearchAPIClient:
             "engine": engine,
             "q": query,
             "num": num_results,
+            "apiKey": self.config.api_key,
         }
 
-        if freshness and engine in ["bing_news", "google_news"]:
+        if freshness:
             params["freshness"] = freshness
 
-        logger.info(f"Searching {engine} via SearchAPI: query='{query}', num={num_results}")
+        logger.info(f"Searching {engine} via NewsAPI.ai: query='{query}', num={num_results}")
 
         try:
             response_data = self._make_request(params)
@@ -126,35 +98,35 @@ class SearchAPIClient:
             if not articles:
                 articles = response_data.get("news_results", [])
             if not articles:
-                articles = response_data.get("value", [])
+                articles = response_data.get("articles", [])
             if not articles:
-                articles = response_data.get("news", [])
+                articles = response_data.get("results", [])
 
             if not articles:
                 logger.warning(f"No articles found in response. Response keys: {list(response_data.keys())}")
                 return []
 
-            logger.info(f"Retrieved {len(articles)} articles")
+            logger.info(f"Retrieved {len(articles)} articles from NewsAPI.ai")
 
             enriched_articles = []
             for article in articles:
                 article_id = self._generate_article_id(article)
                 article["_article_id"] = article_id
                 article["_ingestion_query"] = query
-                article["_ingestion_engine"] = engine
+                article["_ingestion_engine"] = f"newsapi_ai_{engine}"
                 article["_ingestion_offset"] = offset
                 enriched_articles.append(article)
 
             return enriched_articles
 
         except Exception as e:
-            logger.error(f"Error in search: {e}")
+            logger.error(f"Error in NewsAPI.ai search: {e}")
             return []
 
     def search_with_pagination(
         self,
         query: str,
-        engine: str = "bing_news",
+        engine: str = "google_news",
         max_articles: Optional[int] = None,
         freshness: Optional[str] = None,
     ) -> List[Dict[str, Any]]:
@@ -163,9 +135,9 @@ class SearchAPIClient:
 
         Args:
             query: Search query string
-            engine: Search engine (bing_news, google_news, google_patents)
+            engine: Search engine
             max_articles: Maximum number of articles to retrieve
-            freshness: Date filter (only for news engines)
+            freshness: Date filter
 
         Returns:
             List of all retrieved articles
@@ -186,5 +158,6 @@ class SearchAPIClient:
         if max_articles and len(articles) > max_articles:
             articles = articles[:max_articles]
 
-        logger.info(f"Total articles retrieved from {engine}: {len(articles)}")
+        logger.info(f"Total articles retrieved from NewsAPI.ai {engine}: {len(articles)}")
         return articles
+

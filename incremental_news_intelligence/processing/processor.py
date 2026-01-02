@@ -69,3 +69,4 @@ class ProcessingOrchestrator:
 
         logger.info(f"Processed {len(processed_ids)} articles")
         return processed_ids
+

@@ -172,3 +172,4 @@ class TrendStorage:
     def list_trend_timestamps(self) -> List[str]:
         """List all trend timestamps."""
         return self.backend.list_keys()
+

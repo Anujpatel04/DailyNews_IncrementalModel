@@ -112,3 +112,4 @@ class IncrementalTopicModeler:
             self.update_topics_for_cluster(cluster_id)
 
         logger.info(f"Updated topics for {len(cluster_ids)} clusters")
+

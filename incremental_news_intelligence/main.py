@@ -68,7 +68,7 @@ def run_ingestion_pipeline(
 
     logger.info("Starting ingestion pipeline")
 
-    ingester = ArticleIngester(config.bing_news, raw_storage)
+    ingester = ArticleIngester(config.search_api, raw_storage, config.newsapi_ai, config.hackernews)
     ingested_ids = ingester.ingest_articles(
         query=query, max_articles=max_articles, freshness=freshness
     )
@@ -90,6 +90,11 @@ def run_ingestion_pipeline(
     clusterer = IncrementalClusterer(
         config.clustering, embedding_storage, cluster_storage, processed_storage
     )
+    
+    duplicates = clusterer.cleanup_duplicates()
+    if duplicates:
+        logger.warning(f"Found and cleaned up {len(duplicates)} duplicate article assignments")
+    
     assignments = clusterer.assign_new_articles()
 
     logger.info(f"Assigned {len(assignments)} articles to clusters")

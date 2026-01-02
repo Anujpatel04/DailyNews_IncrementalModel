@@ -166,6 +166,8 @@ class ArticleProcessor:
                 source = "unknown"
         published_date = raw_article.get("date") or raw_article.get("datePublished", "")
 
+        engine = raw_article.get("_ingestion_engine", "unknown")
+        
         processed = {
             "article_id": article_id,
             "title": title,
@@ -177,6 +179,7 @@ class ArticleProcessor:
             "content_hash": content_hash,
             "word_count": len(normalized_text.split()),
             "char_count": len(normalized_text),
+            "ingestion_engine": engine,
         }
 
         return processed
