@@ -133,12 +133,6 @@ For persistent cloud storage, use MongoDB Atlas:
 
 See [MONGODB_SETUP.md](MONGODB_SETUP.md) for complete setup instructions.
 
-## Deployment
-
-### Railway Deployment
-
-This application is ready for deployment on Railway. See [RAILWAY_DEPLOYMENT.md](RAILWAY_DEPLOYMENT.md) for detailed deployment instructions.
-
 **Quick Deploy:**
 1. Connect your GitHub repository to Railway
 2. Set environment variables in Railway dashboard (including `MONGODB_URI` for persistent storage)
